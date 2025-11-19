@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renaissance Ideas | History 8</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,400&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    
+    <!-- GSAP & Lenis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f0ece1;
+            --text-main: #1a1a1a;
+            --accent-red: #9e2a2b;
+            --accent-gold: #c6a15b;
+            --dark-bg: #111111;
+            --stone-bg: #b8b8b8;
+            --easing: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            cursor: none; /* Custom cursor */
+        }
+
+        /* Grain Texture Overlay */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Typography */
+        h1, h2, h3, .serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        h1 {
+            font-size: clamp(4rem, 10vw, 9rem);
+            line-height: 0.9;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            font-weight: 400;
+            color: rgba(0,0,0,0.7);
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--accent-red);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        body:hover .cursor.active {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: transparent;
+        }
+
+        /* Layout & Sections */
+        section {
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+            padding: 10vh 5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Hero Section */
+        #hero {
+            height: 100vh;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .hero-text-wrap {
+            transform-style: preserve-3d;
+        }
+
+        .word {
+            display: inline-block;
+            overflow: hidden;
+        }
+        
+        .char {
+            display: inline-block;
+            transform-origin: 50% 100%;
+        }
+
+        /* Complex Geometric SVG Background */
+        .geo-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vw;
+            z-index: 0;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* 3D Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2rem;
+            margin-top: 5rem;
+            perspective: 2000px;
+        }
+
+        .card {
+            grid-column: span 6;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 28, 28, 0.1);
+            padding: 3rem;
+            transform-style: preserve-3d;
+            transition: transform 0.5s var(--easing), box-shadow 0.5s var(--easing);
+        }
+
+        .card:nth-child(odd) { margin-top: -3rem; }
+        .card:nth-child(even) { margin-top: 3rem; }
+
+        .card:hover {
+            border-color: var(--accent-red);
+            z-index: 10;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            color: var(--accent-red);
+            margin-bottom: 1rem;
+        }
+
+        .card .quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .card .quote::before {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            top: -2rem;
+            left: -1rem;
+            opacity: 0.1;
+            color: var(--accent-red);
+        }
+
+        /* Section: Dark Mode (War) */
+        #war {
+            background-color: var(--dark-bg);
+            color: #eee;
+        }
+
+        #war p { color: #aaa; }
+        #war h2 { color: #fff; }
+        
+        .war-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+
+        /* Section: Michelangelo (Stone) & Leonardo */
+        #michelangelo {
+            background-color: var(--stone-bg);
+            color: #222;
+            overflow: hidden;
+        }
+
+        .sculpture-text {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        /* Angel & Devil Styles */
+        .spirit-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .spirit-svg {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            opacity: 0; /* Hidden initially */
+        }
+
+        .angel {
+            top: 10%;
+            left: -10%;
+            color: #fff;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
+
+        .devil {
+            bottom: 10%;
+            right: -10%;
+            color: #330000;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+        }
+        
+        /* 3D Floating Abstract Shapes */
+        .shape {
+            position: absolute;
+            border: 1px solid var(--accent-gold);
+            opacity: 0.3;
+        }
+        .circle-shape { border-radius: 50%; }
+        
+        /* Intro Line */
+        .line-sep {
+            width: 100%;
+            height: 1px;
+            background: rgba(0,0,0,0.1);
+            margin: 2rem 0;
+            transform-origin: left;
+        }
+
+        /* Footer */
+        footer {
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-red);
+            color: white;
+        }
+
+        /* Responsive */
+        @media(max-width: 768px) {
+            .card { grid-column: span 12; margin-top: 0 !important; }
+            .war-content { grid-template-columns: 1fr; }
+            h1 { font-size: 3.5rem; }
+            .spirit-svg { width: 200px; height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Noise Overlay -->
+    <div class="grain"></div>
+    
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- HERO SECTION -->
+    <section id="hero">
+        <!-- Abstract Geometric SVG Animation -->
+        <svg class="geo-bg" viewBox="0 0 500 500">
+            <g class="rotate-group">
+                <circle cx="250" cy="250" r="200" fill="none" stroke="#9e2a2b" stroke-width="0.5" class="draw-path"/>
+                <circle cx="250" cy="250" r="150" fill="none" stroke="#c6a15b" stroke-width="0.5" class="draw-path"/>
+                <rect x="150" y="150" width="200" height="200" fill="none" stroke="#1a1a1a" stroke-width="0.5" transform="rotate(45 250 250)" class="draw-path"/>
+                <path d="M50,250 L450,250 M250,50 L250,450" stroke="#1a1a1a" stroke-width="0.2" class="draw-path"/>
+                <path d="M100,100 L400,400 M400,100 L100,400" stroke="#9e2a2b" stroke-width="0.2" class="draw-path"/>
+            </g>
+        </svg>
+
+        <div class="container hero-text-wrap" data-tilt>
+            <p class="serif" style="color: var(--accent-red); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1rem;">Практична Робота • Анненков Олександр</p>
+            <h1 id="hero-title">
+                <div class="overflow-hidden"><span class="word">Гуманізм</span></div>
+                <div class="overflow-hidden"><span class="word" style="margin-left: 10vw;">&</span> <span class="word" style="color: var(--accent-red);">Влада</span></div>
+                <div class="overflow-hidden"><span class="word">Відродження</span></div>
+            </h1>
+            <div class="line-sep"></div>
+            <p style="max-width: 400px; margin-left: auto;">Дослідження ідей Нікколо Макіавеллі та аналіз поезії Ліни Костенко про Мікеланджело. <br><br><strong>Виконав: Анненков Олександр</strong></p>
+        </div>
+    </section>
+
+    <!-- MACHIAVELLI SECTION -->
+    <section id="machiavelli">
+        <div class="container">
+            <div class="header-group">
+                <p class="serif" style="color: var(--accent-gold);">Завдання 1</p>
+                <h2 class="hover-target">Ідеї Макіавеллі</h2>
+                <p style="max-width: 600px;">Аналіз трактату «Володар». З якими тезами ми погоджуємось сьогодні, а які відкидаємо як жорстокі?</p>
+            </div>
+
+            <div class="card-grid">
+                <!-- Card 1 -->
+                <div class="card hover-target">
+                    <h3>Сила</h3>
+                    <div class="quote">«Хто хоче жити в мирі, той повинен готуватись до війни»</div>
+                    <p><strong>Згоден.</strong> Це аксіома безпеки. Слабкість провокує агресію. Тільки здатність захистити себе гарантує мирне життя для держави.</p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="card hover-target">
+                    <h3>Правда</h3>
+                    <div class="quote">«Володар має занепокоїтися, якщо хтось боїться говорити йому правду»</div>
+                    <p><strong>Згоден.</strong> Страх підлеглих створює "теплу ванну" для лідера. Він втрачає зв'язок з реальністю, що веде до краху.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card hover-target" style="border-color: var(--accent-red);">
+                    <h3>Мораль?</h3>
+                    <div class="quote">«Мета виправдовує засоби»</div>
+                    <p><strong>Не згоден.</strong> Це шлях тиранів. Якщо фундамент перемоги — це кров невинних і зрада, така перемога нічого не варта.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card hover-target">
+                    <h3>Природа людини</h3>
+                    <div class="quote">«Люди завжди погані, поки їх не змусить до добра необхідність»</div>
+                    <p><strong>Не згоден.</strong> Макіавеллі був циніком. Я вірю, що людяність та альтруїзм існують без примусу.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WAR CONTEXT SECTION (Dark Mode) -->
+    <section id="war">
+        <!-- Abstract BG Elements -->
+        <div class="shape circle-shape" style="top: 10%; right: -10%; width: 600px; height: 600px; border-color: #333;"></div>
+        
+        <div class="container">
+            <div class="war-content">
+                <div class="text-block">
+                    <p class="serif" style="color: var(--accent-red);">Актуальність</p>
+                    <h2 class="hover-target">Україна та <br>Реалії Війни</h2>
+                    <p>Макіавеллі писав 500 років тому, але його слова описують напад Росії на Україну з лякаючою точністю.</p>
+                    
+                    <div style="margin-top: 3rem;">
+                        <div class="item hover-target" style="margin-bottom: 2rem; border-left: 2px solid var(--accent-red); padding-left: 1.5rem;">
+                            <h3 class="serif" style="color: #fff; font-size: 1.5rem;">Озброєні пророки</h3>
+                            <p>«Усі озброєні пророки перемагали, а беззбройні гинули». Мирні наміри України не зупинили ворога. Тільки ЗСУ є гарантом нашого існування.</p>
+                        </div>
+                        <div class="item hover-target" style="border-left: 2px solid var(--accent-red); padding-left: 1.5rem;">
+                            <h3 class="serif" style="color: #fff; font-size: 1.5rem;">Ганьба замість слави</h3>
+                            <p>Макіавеллі казав: звірством можна здобути владу, але не славу. Окупанти захопили землі, але отримали вічну ганьбу.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="visual-block" style="perspective: 1000px;">
+                    <!-- 3D Layered SVG Illustration -->
+                    <svg width="100%" height="500" viewBox="0 0 400 400" style="overflow: visible;">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#9e2a2b;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#111;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Sword Abstract -->
+                        <path class="draw-path layer-1" d="M200,50 L200,350" stroke="white" stroke-width="2" />
+                        <path class="draw-path layer-2" d="M150,100 L250,100" stroke="white" stroke-width="2" />
+                        <!-- Broken Shield -->
+                        <path class="draw-path layer-3" d="M100,150 Q50,250 200,380 Q350,250 300,150" fill="none" stroke="#333" stroke-width="1" />
+                        <!-- Chaos Lines -->
+                        <path class="draw-path layer-4" d="M50,350 L350,50 M50,50 L350,350" stroke="#9e2a2b" stroke-width="0.5" opacity="0.5" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MICHELANGELO (Stone Mode) -->
+    <section id="michelangelo">
+        
+        <!-- SPIRIT ANIMATION CONTAINER (Internal Struggle Metaphor) -->
+        <div class="spirit-container">
+            <!-- Angel SVG -->
+            <svg class="spirit-svg angel" viewBox="0 0 200 200" style="stroke: #fff; stroke-width: 2px; fill: none;">
+                <path d="M100,100 Q50,50 20,80 Q60,120 100,140 Q140,120 180,80 Q150,50 100,100" />
+                <circle cx="100" cy="60" r="20" stroke="#ffd700" />
+                <line x1="100" y1="40" x2="100" y2="20" />
+            </svg>
+
+            <!-- Devil SVG -->
+            <svg class="spirit-svg devil" viewBox="0 0 200 200" style="stroke: #3a0000; stroke-width: 3px; fill: none;">
+                <path d="M100,100 L60,80 L40,120 L80,140 L100,160 L120,140 L160,120 L140,80 L100,100" />
+                <path d="M80,60 Q85,40 70,30" />
+                <path d="M120,60 Q115,40 130,30" />
+                <path d="M100,160 Q120,190 140,180 L135,185" />
+            </svg>
+        </div>
+
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 5rem;">
+                <p class="serif">Завдання 3 • Поезія</p>
+                <h2 class="hover-target">«Чекаю дня, коли собі скажу...»</h2>
+                <p>Аналіз вірша Ліни Костенко та рис характеру Мікеланджело</p>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                
+                <!-- Left: Poem Introduction & Struggle -->
+                <div id="leonardo-block" style="flex: 1; min-width: 300px; padding-right: 2rem; position: relative; z-index: 5;" class="hover-target">
+                    <h3 class="serif" style="font-size: 2rem; margin-bottom: 1rem;">Трагедія Досконалості</h3>
+                    <p>Ліна Костенко описує Мікеланджело не як величного "Бога", а як втомленого трудівника. Він усе життя чекає моменту, коли зможе сказати, що його робота ідеальна, але водночас боїться цього.</p>
+                    <p style="margin-top: 1rem;"><i>«О, як тоді, мабуть, я затужу! І як захочу, щоб вона сконала»</i>. Досконалість для нього — це кінець шляху, тому його життя — це вічна боротьба з каменем і самим собою.</p>
+                </div>
+
+                <!-- Right: Poem Analysis (Traits) -->
+                <div style="flex: 1; min-width: 300px; position: relative; z-index: 5;">
+                    <div class="sculpture-text">
+                        <h3 class="serif" style="font-size: 2rem; margin-bottom: 1rem;">Які риси надихнули поетесу?</h3>
+                        <div class="poem-analysis">
+                            <div class="item" style="margin-bottom: 2rem;">
+                                <span style="font-size: 3rem; color: rgba(0,0,0,0.1); font-weight: 700; display:block;">01</span>
+                                <p><strong>Неймовірна працелюбність:</strong> <i>«Були ті руки в саднах і в рубцях — усе життя з камінням говорили».</i> <br>Мистецтво для нього — це фізичний біль і шрами.</p>
+                            </div>
+                            <div class="item" style="margin-bottom: 2rem;">
+                                <span style="font-size: 3rem; color: rgba(0,0,0,0.1); font-weight: 700; display:block;">02</span>
+                                <p><strong>Скромність та вимогливість:</strong> <i>«В мистецтві я пізнав лише ази... ні грана досконалості».</i> <br>Навіть у 90 років геній вважав себе учнем.</p>
+                            </div>
+                            <div class="item">
+                                <span style="font-size: 3rem; color: rgba(0,0,0,0.1); font-weight: 700; display:block;">03</span>
+                                <p><strong>Самотність і стійкість:</strong> <i>«Внизу ревла і тюкала юрма... А він боявся впасти на юрму».</i> <br>Він був вищим за натовп, який його не розумів.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Stone Texture SVG -->
+        <svg class="shape" style="bottom: -10%; left: -10%; width: 50vw; height: 50vw; opacity: 0.05;" viewBox="0 0 100 100">
+            <path d="M0,100 L20,50 L40,80 L60,20 L80,60 L100,0 L100,100 Z" fill="#000" />
+        </svg>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="hover-target">
+        <div class="container" style="text-align: center;">
+            <h2 class="serif" style="margin: 0;">Дякую за увагу</h2>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-top: 2rem; font-weight: 600;">
+                Роботу виконав: Анненков Олександр<br>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Initialize Lenis (Smooth Scroll)
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // 2. Custom Cursor Logic
+        const cursor = document.querySelector('.cursor');
+        const dot = document.querySelector('.cursor-dot');
+        const hoverTargets = document.querySelectorAll('.hover-target, a, h1, h2, .card');
+
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.5, ease: "power2.out" });
+            gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
+        });
+
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            target.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
+
+        // 3. Register GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 4. Hero Animation
+        const heroTl = gsap.timeline();
+        
+        // Split text effect simulation
+        gsap.utils.toArray('.word').forEach((word, i) => {
+            heroTl.from(word, {
+                y: 150,
+                skewY: 10,
+                duration: 1.5,
+                ease: "power4.out",
+            }, i * 0.1); // stagger
+        });
+
+        heroTl.from(".line-sep", { scaleX: 0, duration: 1, ease: "expo.out" }, "-=1");
+        heroTl.from(".hero-text-wrap p", { opacity: 0, y: 20, duration: 1 }, "-=0.8");
+
+        // Rotating Background
+        gsap.to(".rotate-group", {
+            rotation: 360,
+            duration: 60,
+            repeat: -1,
+            ease: "none"
+        });
+
+        // 5. 3D Card Scroll Effect
+        gsap.utils.toArray('.card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 85%",
+                    end: "top 50%",
+                    scrub: 1,
+                },
+                y: 100,
+                rotationX: 15,
+                opacity: 0,
+                transformPerspective: 1000
+            });
+        });
+
+        // 6. Background Color Changes
+        // To Dark
+        gsap.to("body", {
+            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--dark-bg').trim(),
+            scrollTrigger: {
+                trigger: "#war",
+                start: "top 50%",
+                end: "bottom 50%",
+                toggleActions: "play reverse play reverse"
+            }
+        });
+        // To Stone
+        gsap.to("body", {
+            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--stone-bg').trim(),
+            scrollTrigger: {
+                trigger: "#michelangelo",
+                start: "top 50%",
+                end: "bottom 100%",
+                toggleActions: "play reverse play reverse"
+            }
+        });
+
+        // 7. SVG Drawing Animations
+        document.querySelectorAll('.draw-path').forEach(path => {
+            const length = path.getTotalLength();
+            
+            gsap.set(path, { 
+                strokeDasharray: length, 
+                strokeDashoffset: length 
+            });
+
+            gsap.to(path, {
+                strokeDashoffset: 0,
+                duration: 2,
+                ease: "power2.inOut",
+                scrollTrigger: {
+                    trigger: path.closest("section"),
+                    start: "top 60%"
+                }
+            });
+        });
+
+        // 8. Angel & Devil Animation (FLYING IN)
+        const spiritTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#leonardo-block",
+                start: "top 70%",
+                toggleActions: "play none none reverse"
+            }
+        });
+
+        // Angel flies from top left
+        spiritTl.to(".angel", {
+            x: 150,
+            y: 100,
+            opacity: 0.8,
+            duration: 2,
+            ease: "power3.out"
+        }, 0);
+
+        // Devil flies from bottom right
+        spiritTl.to(".devil", {
+            x: -150,
+            y: -100,
+            opacity: 0.6,
+            duration: 2,
+            ease: "power3.out"
+        }, 0);
+
+        // Idle Floating Animation
+        gsap.to(".angel", {
+            y: "+=20",
+            duration: 3,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut"
+        });
+        
+        gsap.to(".devil", {
+            y: "-=20",
+            duration: 4,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut"
+        });
+
+
+        // 9. Parallax Layers (War Section)
+        gsap.to(".layer-1", { y: -50, scrollTrigger: { trigger: "#war", scrub: true }});
+        gsap.to(".layer-2", { y: -30, scrollTrigger: { trigger: "#war", scrub: true }});
+        gsap.to(".layer-3", { y: -80, scrollTrigger: { trigger: "#war", scrub: true }});
+
+        // 10. Tilt Effect (Hero)
+        const heroSection = document.querySelector('#hero');
+        const heroText = document.querySelector('.hero-text-wrap');
+        
+        heroSection.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            
+            gsap.to(heroText, {
+                rotationY: x,
+                rotationX: -y,
+                duration: 1,
+                ease: "power2.out"
+            });
+        });
+
+    </script>
+</body>
+</html>
