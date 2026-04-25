@@ -9,9 +9,7 @@ A visual static page about Renaissance ideas and historical context.
 - Historical content presentation.
 
 ### Screenshots
-![Screenshot 1](docs/screenshots/01-home.png)
-![Screenshot 2](docs/screenshots/02-section.png)
-![Screenshot 3](docs/screenshots/03-content.png)
+
 
 ### Run locally
 Use any static file server and open the project in a browser. Example: Python built-in HTTP server on port 8000.
@@ -25,9 +23,8 @@ Use any static file server and open the project in a browser. Example: Python bu
 - Historical content presentation.
 
 ### Скриншоты
-![Screenshot 1](docs/screenshots/01-home.png)
-![Screenshot 2](docs/screenshots/02-section.png)
-![Screenshot 3](docs/screenshots/03-content.png)
+![Full hero section](docs/screenshots/01-home.png)
+
 
 ### Локальный запуск
 Запусти любой статический HTTP-сервер и открой проект в браузере. Например, встроенный Python HTTP server на порту 8000.
@@ -41,9 +38,6 @@ Use any static file server and open the project in a browser. Example: Python bu
 - Historical content presentation.
 
 ### Скріншоти
-![Screenshot 1](docs/screenshots/01-home.png)
-![Screenshot 2](docs/screenshots/02-section.png)
-![Screenshot 3](docs/screenshots/03-content.png)
 
 ### Локальний запуск
 Запусти будь-який статичний HTTP-сервер і відкрий проєкт у браузері. Наприклад, вбудований Python HTTP server на порту 8000.
